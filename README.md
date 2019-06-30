@@ -65,4 +65,4 @@ Example:
 ./DistanceLearning hcee input1.csv input2.csv
 ```
 
-This example loads the two files `input1.csv` and `input2.csv`, learns the best metric using complete linkage and the Hamming cost, and output the results to the console. The pointwise distances are calculated using the Euclidean distances in bothc cases.
+This example loads the two files `input1.csv` and `input2.csv`, learns the best metric using complete linkage and the Hamming cost, and output the results to the console. The pointwise distances are calculated using the Euclidean distances in both cases.
