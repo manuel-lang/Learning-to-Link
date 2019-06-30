@@ -32,8 +32,6 @@ std::vector<double> split_labels(const std::string &s, char delimiter) {
 }
 
 int main(int argc, char *argv[]) {
-    Evaluation::evaluate_folder("/Users/Manuel/CMU/AlphaLinkage/AlphaLinkage/logs/MNIST-AWS-AC-6-batches", "/Users/Manuel/CMU/AlphaLinkage/AlphaLinkage/logs/MNIST-AWS-AC-6-batches/avg.txt");
-    return 0;
     bool average = true;
     bool use_folder = false;
     bool use_files = false;
