@@ -40,7 +40,7 @@ You can use the following command line arguments.
 
 Example:
 ```
-./AlphaLinkage --input ./input.csv --output.csv --points 200 --singlecomplete
+./AlphaLinkage --input ./input.csv --output ./output.csv --points 200 --singlecomplete
 ```
 This command will read 200 points for each class from the file `input.csv`, interpolate between single and complete linkage, and output the results to `output.csv`.
 
