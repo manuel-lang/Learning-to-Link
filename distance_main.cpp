@@ -14,14 +14,10 @@ using namespace std;
 using namespace distance_learning;
 
 // Represents the error type that we compute
-enum ErrorType {
-    HAMMING, MAJORITY
-};
+enum ErrorType { HAMMING, MAJORITY };
 
 // Represents what type of data is stored in each file.
-enum FileType {
-    EUCLIDEAN, COSINE, DISTANCES
-};
+enum FileType { EUCLIDEAN, COSINE, DISTANCES };
 
 FileType parse_file_type(char c) {
     switch (c) {
@@ -43,7 +39,6 @@ struct LabeledData {
 // remaining columns as feature vectors.
 LabeledData split_labels(const vector<vector<double>> &data) {
     LabeledData labeled_data;
-    int count = 0;
     for (auto row : data) {
         labeled_data.labels.push_back(row[0]);
         labeled_data.points.push_back(vector<double>());
@@ -56,25 +51,16 @@ LabeledData split_labels(const vector<vector<double>> &data) {
 
 // Loads a dataset from file and returns it.
 LabeledData load_data_from_csv(string path) {
-    vector<vector<double>> data = readcsv(path);
-    vector<double> labels;
-    vector<vector<double>> feature_vectors;
-    vector<double> sublabels = {};
-    Helpers::load_data(data, labels, feature_vectors, sublabels, 0, 0);
-    LabeledData labeledData;
-    labeledData.labels = labels;
-    labeledData.points = feature_vectors;
-    cout << labeledData.points.siz() << endl;
-    return labeledData;
+    return split_labels(readcsv(path));
 }
 
 // Given a vector of labels (arbitrary integers) and a vector of the unique
 // labels, maps the labels to take values in 0, ..., unique_labels.size() - 1
 void adjust_labels(vector<int> &labels, const vector<int> &unique_labels) {
-    for (int &label : labels) {
+    for (size_t i = 0; i < labels.size(); i++) {
         for (size_t j = 0; j < unique_labels.size(); j++) {
-            if (label == unique_labels[j]) {
-                label = j;
+            if (labels[i] == unique_labels[j]) {
+                labels[i] = j;
                 break;
             }
         }
@@ -108,15 +94,15 @@ DistanceMatrix make_distances(const vector<vector<double>> &features,
 // is 1.
 void normalize_distances(DistanceMatrix &d) {
     double max_dist = -1;
-    for (const auto &row : d) {
+    for (auto row : d) {
         for (auto value : row) {
             max_dist = max(max_dist, value);
         }
     }
     if (max_dist >= 1e-10) {
-        for (auto &i : d) {
-            for (double &j : i) {
-                j /= max_dist;
+        for (int i = 0; i < d.size(); i++) {
+            for (int j = 0; j < d[i].size(); j++) {
+                d[i][j] /= max_dist;
             }
         }
     }
