@@ -4,6 +4,9 @@
 #include <fstream>
 #include <iostream>
 #include <vector>
+#include <limits>
+
+#include "stddef.h"
 
 #include "Helpers.h"
 
@@ -173,7 +176,7 @@ void Evaluation::greedy_top_k(const std::string &input_folder, int max_k, const 
     }
 
     // find best parameters
-    for (uint k = 1; k <= max_k; k++) {
+    for (unsigned int k = 1; k <= max_k; k++) {
         std::pair<double, double> top = std::pair<double, double>(0.0, std::numeric_limits<double>::infinity());
         for (const AlphaRange &opt : opt_vals) {
             double overall_cost = 0.0;

@@ -2,6 +2,9 @@
 #define Prune_h
 
 #include <map>
+#include <limits>
+
+#include "stddef.h"
 
 #include "CostFunction.h"
 

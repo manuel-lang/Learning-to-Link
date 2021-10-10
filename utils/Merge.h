@@ -5,6 +5,10 @@
 
 #include "Helpers.h"
 #include "State.h"
+#include "LinearFunction.h"
+#include "MergeCandidate.h"
+
+#include <limits>
 
 /**
  *
