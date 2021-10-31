@@ -1,4 +1,5 @@
 #include <vector>
+#include "gurobi_c++.h"
 
 #ifndef AffineFunction_h
 #define AffineFunction_h
@@ -14,8 +15,9 @@ public:
     vector<double> a;
     double b;
 
-    AffineFunction(vector<double> a, double b) : a(a), b(b) {};
+    AffineFunction(vector<double> &a, double b) : a(a), b(b) {};
 
+    GRBLinExpr to_grb_expression(GRBVar *vars, unsigned int d);
 };
 
 #endif /* AffineFunction_h */
