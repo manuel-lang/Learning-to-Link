@@ -51,8 +51,7 @@ Clarkson::redundancy_result Clarkson::single_redundancy_check(
     std::vector<int> &indices, int test_index)
 {
     // Set up LP for checking single redundancy
-    GRBEnv env = GRBEnv();
-    GRBModel model = GRBModel(env);
+    GRBModel model = GRBModel(Clarkson::env);
 
     unsigned int d = boundary.d;
 
@@ -93,12 +92,37 @@ Clarkson::redundancy_result Clarkson::single_redundancy_check(
     return result;
 };
 
-// TODO: Implement these
 std::vector<double>* Clarkson::interior_point(Polytope &boundary) {
+    // The high-level idea behind finding an interior point is to add a
+    // new variable, C (boundary_distance), which represents the overall distance that the solution
+    // is from the hyperplane constraints. By maximizing C, we find a point
+    // that is inside the boundary polytope and as far away from the boundaries
+    // as possible; as long as C > 0 in the optimum solution (which happens whenever
+    // the region is full-dimensional), we find an interior point.
+
     std::vector<double>* point = new std::vector<double>();
+    GRBModel model = GRBModel(Clarkson::env);
+
+    GRBVar boundary_distance = model.addVar(0.0, GRB_INFINITY, 0.0, GRB_CONTINUOUS);
+
+    unsigned int d = boundary.d;
+    GRBVar *vars = model.addVars(d, GRB_CONTINUOUS);
+    
+    for(int i = 0; i < d; i++) {
+        model.addConstr(boundary.constraints[i].to_grb_expression(vars, d) >= boundary_distance);
+    }
+
+    model.setObjective(GRBLinExpr(boundary_distance), GRB_MAXIMIZE);
+    model.optimize();
+
+    for(int i = 0; i < d; i++) {
+        point->push_back(vars[i].get(GRB_DoubleAttr_X));
+    }
+    
     return point;
 };
 
+// TODO: Implement ray shoot
 int Clarkson::ray_shoot(
     Polytope &boundary, std::vector<double> &starting_point,
     std::vector<double> &direction) {

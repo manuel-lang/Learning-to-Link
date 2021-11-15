@@ -12,7 +12,7 @@
 
 #include "AffineFunction.h"
 #include "Polytope.h"
-
+#include "gurobi_c++.h"
 
 
 class Clarkson
@@ -29,6 +29,8 @@ private:
         bool is_redundant;
         int index;
     };
+
+    GRBEnv env = GRBEnv();
 
     // Returns an interior point of the polytope
     std::vector<double> *interior_point(Polytope &boundary);
