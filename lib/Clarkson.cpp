@@ -8,6 +8,10 @@
 #include <vector>
 
 GRBEnv Clarkson::env = GRBEnv();
+void Clarkson::init_env() {
+    env.set(GRB_IntParam_LogToConsole, 0);
+};
+
 
 Polytope *Clarkson::non_redundant_polytope(Polytope &boundary)
 {
@@ -63,6 +67,10 @@ Clarkson::redundancy_result Clarkson::single_redundancy_check(
     unsigned int d = boundary.d;
 
     GRBVar *vars = model.addVars(d, GRB_CONTINUOUS);
+    for(int i = 0; i < d; i++) {
+        vars[i].set(GRB_DoubleAttr_LB, -GRB_INFINITY);
+        vars[i].set(GRB_DoubleAttr_UB, GRB_INFINITY);
+    }
 
     for(int i : indices) {
         model.addConstr(boundary.constraints[i].to_grb_expression(vars, d) >= 0);
@@ -107,26 +115,38 @@ std::vector<double>* Clarkson::interior_point(Polytope &boundary) {
     // as possible; as long as C > 0 in the optimum solution (which happens whenever
     // the region is full-dimensional), we find an interior point.
 
-    std::vector<double>* point = new std::vector<double>();
-    GRBModel model = GRBModel(Clarkson::env);
+    try {
+        std::vector<double>* point = new std::vector<double>();
+        GRBModel model = GRBModel(Clarkson::env);
 
-    GRBVar boundary_distance = model.addVar(0.0, GRB_INFINITY, 0.0, GRB_CONTINUOUS);
+        GRBVar boundary_distance = model.addVar(0.0, GRB_INFINITY, 0.0, GRB_CONTINUOUS, "C");
 
-    unsigned int d = boundary.d;
-    GRBVar *vars = model.addVars(d, GRB_CONTINUOUS);
-    
-    for(int i = 0; i < d; i++) {
-        model.addConstr(boundary.constraints[i].to_grb_expression(vars, d) >= boundary_distance);
+        unsigned int d = boundary.d;
+        unsigned int m = boundary.constraints.size();
+
+        GRBVar *vars = model.addVars(d, GRB_CONTINUOUS);
+        for(int i = 0; i < d; i++) {
+            vars[i].set(GRB_DoubleAttr_LB, -GRB_INFINITY);
+            vars[i].set(GRB_DoubleAttr_UB, GRB_INFINITY);
+        }
+        
+        for(int i = 0; i < m; i++) {
+            model.addConstr(boundary.constraints[i].to_grb_expression(vars, d) >= boundary_distance);
+        }
+
+        model.setObjective(GRBLinExpr(boundary_distance), GRB_MAXIMIZE);
+        model.optimize();
+
+        for(int i = 0; i < d; i++) {
+            point->push_back(vars[i].get(GRB_DoubleAttr_X));
+        }
+        
+        return point;
+    } catch(GRBException e) {
+        printf("Error code: %d\n", e.getErrorCode());
+        printf("Error message: %s\n", e.getMessage());
+        exit(1);
     }
-
-    model.setObjective(GRBLinExpr(boundary_distance), GRB_MAXIMIZE);
-    model.optimize();
-
-    for(int i = 0; i < d; i++) {
-        point->push_back(vars[i].get(GRB_DoubleAttr_X));
-    }
-    
-    return point;
 };
 
 double Clarkson::single_ray_shoot(
@@ -134,7 +154,7 @@ double Clarkson::single_ray_shoot(
     std::vector<double> &direction, int index) {
 
     AffineFunction constraint = boundary.constraints[index];
-    double direction_eval = constraint.eval(direction);
+    double direction_eval = constraint.linear_eval(direction);
 
     if(direction_eval == 0.0) {
         return GRB_INFINITY;
@@ -148,11 +168,12 @@ int Clarkson::ray_shoot(
     std::vector<double> &direction) {
 
     unsigned int d = boundary.d;
+    unsigned int m = boundary.constraints.size();
     int best_index = -1;
     double best_distance = 0.0;
-    for(int i = 0; i < d; i++) {
+    for(int i = 0; i < m; i++) {
         double current_distance = single_ray_shoot(boundary, starting_point, direction, i);
-        if(best_index == -1 || (current_distance >= 0.0 && current_distance < best_distance)) {
+        if(current_distance >= 0.0 && (best_index == -1 || current_distance < best_distance)) {
             best_index = i;
             best_distance = current_distance;
         }

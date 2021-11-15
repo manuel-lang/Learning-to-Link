@@ -22,6 +22,7 @@ public:
     ~Clarkson();
     static Polytope *non_redundant_polytope(Polytope &boundary);
     static std::vector<int> *non_redundant_indices(Polytope &boundary);
+    static void init_env();
     
 private:
     // When a redundancy check is performed, it returns either a redundant constraint index

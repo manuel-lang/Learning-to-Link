@@ -7,7 +7,7 @@
 #define dbg_assert(e) (assert(e))
 
 #else
-#define dbg_assert(e) ((void*)(e)) // No-op
+#define dbg_assert(e) ((void*)(0)) // No-op
 
 #endif /* DEBUG */
 

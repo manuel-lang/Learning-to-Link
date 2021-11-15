@@ -39,5 +39,6 @@ void simple_polygon_test() {
 };
 
 void ClarksonTest::run() {
+    Clarkson::init_env();
     simple_polygon_test();
 }

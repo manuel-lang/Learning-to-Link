@@ -20,6 +20,9 @@ public:
     // computes <a, x> + b
     double eval(vector<double> &x);
 
+    // computes <a, x> (out of convenience)
+    double linear_eval(vector<double> &x);
+
     GRBLinExpr to_grb_expression(GRBVar *vars, unsigned int d);
 };
 
