@@ -7,10 +7,23 @@
 #include <unordered_set>
 #include <vector>
 
-Polytope *Clarkson::eliminate_redundancy(Polytope &boundary)
+GRBEnv Clarkson::env = GRBEnv();
+
+Polytope *Clarkson::non_redundant_polytope(Polytope &boundary)
+{
+    unsigned int d = boundary.d;
+    std::vector<int> *non_redundant = non_redundant_indices(boundary);
+    std::vector<AffineFunction> new_constraints;
+    for(int i : *non_redundant) {
+        new_constraints.push_back(boundary.constraints[i]);
+    }
+    return new Polytope(new_constraints, d);
+}
+
+std::vector<int> *Clarkson::non_redundant_indices(Polytope &boundary)
 {
     std::unordered_set<int> remaining;
-    std::vector<int> nonredundant;
+    std::vector<int> *nonredundant = new std::vector<int>();
 
     int num_constraints = boundary.constraints.size();
     unsigned int d = boundary.d;
@@ -26,24 +39,18 @@ Polytope *Clarkson::eliminate_redundancy(Polytope &boundary)
         int test_index = *remaining.begin();
 
         Clarkson::redundancy_result res = Clarkson::single_redundancy_check(
-            boundary, *z, nonredundant, test_index
+            boundary, *z, *nonredundant, test_index
         );
 
         // Sometimes we get lucky and find a non-redundant constraint;
         if(!res.is_redundant) {
-            nonredundant.push_back(res.index);
+            nonredundant->push_back(res.index);
         }
 
         remaining.erase(res.index);
     }
-
-    // We have the nonredundant constraints; just have to add them to a new polytope
-    std::vector<AffineFunction> new_constraints;
-    for(int i : nonredundant) {
-        new_constraints.push_back(boundary.constraints[i]);
-    }
-
-    return new Polytope(new_constraints, d);
+    
+    return nonredundant;
 };
 
 Clarkson::redundancy_result Clarkson::single_redundancy_check(
