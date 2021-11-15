@@ -12,3 +12,14 @@ GRBLinExpr AffineFunction::to_grb_expression(GRBVar *vars, unsigned int d) {
 
     return expr;
 };
+
+double AffineFunction::eval(std::vector<double> &x) {
+    double result = 0.0;
+    unsigned int d = a.size();
+
+    for(int i = 0; i < d; i++) {
+        result += a[i] * x[i];
+    }
+    result += b;
+    return result;
+};

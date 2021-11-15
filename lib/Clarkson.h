@@ -40,6 +40,13 @@ private:
         Polytope &boundary, std::vector<double> &starting_point,
         std::vector<int> &indices, int test_index);
 
+    // Returns a value lambda such that the ray intersects with
+    // the constraint given by index after distance lambda from the
+    // starting point
+    double single_ray_shoot(
+        Polytope &boundary, std::vector<double> &starting_point,
+        std::vector<double> &direction, int index);
+
     // Returns an essential index
     int ray_shoot(
         Polytope &boundary, std::vector<double> &starting_point,

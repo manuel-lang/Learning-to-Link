@@ -17,6 +17,9 @@ public:
 
     AffineFunction(vector<double> &a, double b) : a(a), b(b) {};
 
+    // computes <a, x> + b
+    double eval(vector<double> &x);
+
     GRBLinExpr to_grb_expression(GRBVar *vars, unsigned int d);
 };
 

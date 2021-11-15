@@ -122,9 +122,33 @@ std::vector<double>* Clarkson::interior_point(Polytope &boundary) {
     return point;
 };
 
-// TODO: Implement ray shoot
+double Clarkson::single_ray_shoot(
+    Polytope &boundary, std::vector<double> &starting_point,
+    std::vector<double> &direction, int index) {
+
+    AffineFunction constraint = boundary.constraints[index];
+    double direction_eval = constraint.eval(direction);
+
+    if(direction_eval == 0.0) {
+        return GRB_INFINITY;
+    }
+
+    return -constraint.eval(starting_point) / direction_eval;
+};
+
 int Clarkson::ray_shoot(
     Polytope &boundary, std::vector<double> &starting_point,
     std::vector<double> &direction) {
-    return 0;
+
+    unsigned int d = boundary.d;
+    int best_index = -1;
+    double best_distance = 0.0;
+    for(int i = 0; i < d; i++) {
+        double current_distance = single_ray_shoot(boundary, starting_point, direction, i);
+        if(best_index == -1 || (current_distance >= 0.0 && current_distance < best_distance)) {
+            best_index = i;
+            best_distance = current_distance;
+        }
+    }
+    return best_index;
 };
