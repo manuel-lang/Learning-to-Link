@@ -5,7 +5,7 @@
 #include <vector>
 
 namespace AlphaLinkage {
-
+    
     /**
      * Outputs all intervals and the according costs for the given input files into the given output file by interpolating
      * between single and complete linkage.

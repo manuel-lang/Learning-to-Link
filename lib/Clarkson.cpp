@@ -64,12 +64,43 @@ Clarkson::redundancy_result Clarkson::single_redundancy_check(
 
     GRBLinExpr test_expr = boundary.constraints[test_index].to_grb_expression(vars, d);
 
-    // The trick: add this constraint slightly looser than it actully needs to be. If
+    // The trick: add this constraint slightly looser than it actually needs to be. If
     // the resulting polytope grows (i.e. minimizing this expression reaches sub-zero),
     // then test_index is non-redundant.
     model.addConstr(test_expr >= -1);
     model.setObjective(test_expr, GRB_MINIMIZE);
 
     model.optimize();
-    
+
+    Clarkson::redundancy_result result;
+    if(model.getObjective().getValue() < 0) {
+        // A non-redundant constraint is out there -- now have to ray shoot to figure out which
+        // one is the tightest.
+        result.is_redundant = false;
+
+        std::vector<double> shoot_direction;
+        for(int i = 0; i < d; i++) {
+            shoot_direction.push_back(vars[i].get(GRB_DoubleAttr_X) - starting_point[i]);
+        }
+
+        result.index = ray_shoot(boundary, starting_point, shoot_direction);
+    } else {
+        // Redundant
+        result.is_redundant = true;
+        result.index = test_index;
+    }
+
+    return result;
+};
+
+// TODO: Implement these
+std::vector<double>* Clarkson::interior_point(Polytope &boundary) {
+    std::vector<double>* point = new std::vector<double>();
+    return point;
+};
+
+int Clarkson::ray_shoot(
+    Polytope &boundary, std::vector<double> &starting_point,
+    std::vector<double> &direction) {
+    return 0;
 };
