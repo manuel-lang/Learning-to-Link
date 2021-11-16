@@ -13,7 +13,7 @@ SET(HEADER_FILES "$ENV{GUROBI_HOME}/include/gurobi_c++.h")
 
 FIND_PACKAGE(GUROBI REQUIRED)
 
-INCLUDE_DIRECTORIES(data_reader, lib, types, utils, ${GUROBI_INCLUDE_DIRS})
+INCLUDE_DIRECTORIES(data_reader, lib, types, utils, tests, ${GUROBI_INCLUDE_DIRS})
 
 FILE(GLOB UTIL_SOURCES "utils/*.cpp")
 FILE(GLOB LIB_SOURCES "lib/*.cpp")
